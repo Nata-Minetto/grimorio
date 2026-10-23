@@ -1,0 +1,2 @@
+# Normaliza as quebras de linha para LF, mesmo quando o repo é aberto pelo Windows
+* text=auto eol=lf

@@ -1,0 +1,6 @@
+# Itens globais. Cada app ou serviço tem o próprio .gitignore.
+.env
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
