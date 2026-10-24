@@ -1,0 +1,42 @@
+services:
+  app:
+    build: ./apps/web
+    user: "${HOST_UID:-1000}:${HOST_GID:-1000}"
+    command: php artisan serve --host=0.0.0.0 --port=8000
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./apps/web:/app
+    depends_on:
+      db:
+        condition: service_healthy
+
+  vite:
+    image: node:24
+    user: "${HOST_UID:-1000}:${HOST_GID:-1000}"
+    working_dir: /app
+    command: npm run dev
+    environment:
+      npm_config_cache: /tmp/npm
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./apps/web:/app
+
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: grimorio
+      POSTGRES_USER: grimorio
+      POSTGRES_PASSWORD: grimorio
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U grimorio -d grimorio"]
+      interval: 5s
+      retries: 10
+
+volumes:
+  db-data:
