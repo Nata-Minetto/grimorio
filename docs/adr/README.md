@@ -7,3 +7,5 @@ Os ADRs não são reescritos. Quando uma decisão muda, um novo ADR substitui o 
 | Nº | Decisão | Status |
 |----|---------|--------|
 | [0001](0001-execucao-em-containers.md) | Execução em containers | Aceito |
+| [0002](0002-laravel-inertia.md) | Laravel e Inertia com React | Aceito |
+| [0003](0003-postgresql.md) | PostgreSQL | Aceito |
