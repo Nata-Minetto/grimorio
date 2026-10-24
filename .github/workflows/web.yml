@@ -1,0 +1,46 @@
+name: web
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "apps/web/**"
+      - "compose.yaml"
+      - ".github/workflows/web.yml"
+  pull_request:
+    paths:
+      - "apps/web/**"
+      - "compose.yaml"
+      - ".github/workflows/web.yml"
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Mesmos containers do ambiente local (ADR 0001), rodando com o usuário do runner
+      - name: Preparar ambiente
+        run: |
+          echo "HOST_UID=$(id -u)" >> "$GITHUB_ENV"
+          echo "HOST_GID=$(id -g)" >> "$GITHUB_ENV"
+          cp apps/web/.env.example apps/web/.env
+          docker compose build app
+
+      - name: Dependências PHP
+        run: |
+          docker compose run --rm --no-deps -T app composer install --no-interaction --no-progress
+          docker compose run --rm --no-deps -T app php artisan key:generate
+
+      - name: Pint
+        run: docker compose run --rm --no-deps -T app composer lint:check
+
+      - name: Larastan
+        run: docker compose run --rm --no-deps -T app composer analyse
+
+      - name: Pest
+        run: docker compose run --rm --no-deps -T app composer test
+
+      # O tsconfig resolve o ziggy-js a partir de vendor/, por isso vem depois do composer install
+      - name: Frontend (ESLint, tsc, Prettier, build)
+        run: docker compose run --rm --no-deps -T vite sh -c "npm ci && npx eslint . && npx tsc --noEmit && npm run format:check && npm run build"
