@@ -12,6 +12,7 @@ on:
       - "apps/web/**"
       - "compose.yaml"
       - ".github/workflows/web.yml"
+  workflow_dispatch:
 
 jobs:
   checks:
